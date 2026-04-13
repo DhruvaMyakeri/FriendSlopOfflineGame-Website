@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMPOSTER // MAX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #050505;
+      --glass-bg: rgba(20, 20, 25, 0.4);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --ink: #FFFFFF;
+      --ink2: #A1A1AA;
+      --ink3: #71717A;
+      
+      --neon-pink: #FF007F;
+      --neon-cyan: #00FFFF;
+      --neon-purple: #8A2BE2;
+      --neon-yellow: #FFFB00;
+      --neon-orange: #FF4500;
+
+      --card-bg: rgba(30, 30, 35, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--ink);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* Animated Background */
+    .bg-blobs {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: -1;
+      overflow: hidden;
+      filter: blur(80px);
+      background-color: var(--bg-dark);
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: float 15s infinite alternate ease-in-out;
+    }
+    .blob-1 { width: 50vw; height: 50vw; background: var(--neon-purple); top: -10%; left: -20%; animation-duration: 20s; }
+    .blob-2 { width: 60vw; height: 60vw; background: var(--neon-pink); bottom: -20%; right: -20%; animation-duration: 25s; animation-delay: -5s; }
+    .blob-3 { width: 45vw; height: 45vw; background: var(--neon-cyan); top: 30%; left: 50%; animation-duration: 18s; animation-delay: -10s; }
+
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      33% { transform: translate(50px, -50px) scale(1.1) rotate(20deg); }
+      66% { transform: translate(-30px, 40px) scale(0.9) rotate(-15deg); }
+      100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    }
+
+    /* Container Glassmorphism */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      position: relative;
+      background: rgba(10, 10, 12, 0.6);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+      border-left: 1px solid var(--glass-border);
+      border-right: 1px solid var(--glass-border);
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+      padding: 3rem 2rem;
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .screen.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Typography */
+    h1, h2, h3 { font-weight: 800; line-height: 1.1; text-transform: uppercase; }
+    h1 { 
+      font-size: clamp(2.2rem, 12vw, 3.2rem); 
+      margin-bottom: 2rem; 
+      color: var(--ink);
+      text-shadow: 0 0 15px rgba(255,255,255,0.4);
+      letter-spacing: 0.02em;
+    }
+    h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+    p { font-size: 1.1rem; color: var(--ink2); line-height: 1.6; }
+    .mono { font-family: 'Syne Mono', monospace; }
+    
+    .label {
+      font-family: 'Syne Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    }
+
+    /* Forms */
+    input[type="number"] {
+      width: 100%;
+      height: 64px;
+      background: var(--glass-bg);
+      border: 2px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 0 1.5rem;
+      font-family: 'Syne Mono', monospace;
+      font-size: 1.5rem;
+      color: var(--ink);
+      margin-bottom: 2.5rem;
+      box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
+    }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 4px 20px rgba(0,0,0,0.5);
+      background: rgba(0, 255, 255, 0.05);
+    }
+
+    /* Buttons */
+    button {
+      width: 100%;
+      min-height: 68px;
+      background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
+      color: #FFFFFF;
+      border: none;
+      border-radius: 16px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2rem;
+      box-shadow: 0 10px 30px rgba(255, 0, 127, 0.4);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+      transform: skewX(-20deg);
+      transition: none;
+    }
+    button:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(255, 0, 127, 0.6);
+    }
+    button:hover::after {
+      animation: shine 0.7s forwards;
+    }
+    button:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
+    }
+    
+    @keyframes shine {
+      100% { left: 200%; }
+    }
+
+    button.secondary {
+      background: var(--glass-bg);
+      border: 2px solid var(--glass-border);
+      color: var(--ink);
+      box-shadow: none;
+      margin-top: 1.5rem;
+    }
+    button.secondary:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+      background: rgba(0, 255, 255, 0.05);
+    }
+    button.secondary::after { display: none; }
+
+    /* Mode Cards */
+    .mode-group { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+    
+    .mode-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top-color: rgba(255, 255, 255, 0.25);
+      border-left-color: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .mode-card:hover {
+      transform: translateX(10px);
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .mode-card.selected {
+      border-color: var(--neon-yellow);
+      background: rgba(255, 251, 0, 0.08);
+      box-shadow: 0 0 30px rgba(255, 251, 0, 0.15);
+      transform: scale(1.03) translateX(5px);
+    }
+    
+    .radio-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid var(--ink3);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .mode-card.selected .radio-dot {
+      border-color: var(--neon-yellow);
+      box-shadow: 0 0 15px rgba(255, 251, 0, 0.6);
+    }
+    .mode-card.selected .radio-dot::after {
+      content: ''; width: 14px; height: 14px;
+      background-color: var(--neon-yellow);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--neon-yellow);
+    }
+
+    .mode-info h3 { font-size: 1.3rem; margin-bottom: 0.3rem; letter-spacing: 0; }
+    .mode-info p { font-size: 0.95rem; margin: 0; color: var(--ink2); }
+
+    /* Cover Screen */
+    #cover-screen {
+      background: rgba(0,0,0,0.6);
+      align-items: center; justify-content: center; text-align: center;
+    }
+    #cover-screen h2 {
+      font-size: clamp(3rem, 12vw, 4.5rem);
+      margin-top: auto; margin-bottom: auto;
+      text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
+
+    /* Reveal Screen */
+    .progress-bar-container {
+      width: 100%; height: 6px;
+      background-color: rgba(255,255,255,0.1);
+      margin-bottom: 3rem;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      width: 0%;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+
+    .reveal-content {
+      flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center;
+      margin-bottom: 2rem;
+    }
+    .reveal-content.left-align { text-align: left; }
+
+    .reveal-word {
+      font-size: clamp(3rem, 12vw, 5rem);
+      font-weight: 800;
+      color: var(--neon-pink);
+      text-transform: uppercase;
+      text-shadow: 0 5px 25px rgba(255, 0, 127, 0.4);
+      margin: 1rem 0;
+      line-height: 1;
+    }
+    .reveal-question {
+      font-size: clamp(1.8rem, 8vw, 2.5rem);
+      font-weight: 800;
+      color: var(--neon-cyan);
+      text-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+      margin: 1rem 0;
+      line-height: 1.2;
+    }
+
+    /* Discussion Screen */
+    .timer-container {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .timer {
+      font-size: clamp(5rem, 20vw, 8rem);
+      color: var(--ink);
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(255,255,255,0.2);
+      transition: color 0.3s ease, transform 0.1s ease;
+    }
+    .timer.urgent {
+      color: var(--neon-orange);
+      text-shadow: 0 0 40px rgba(255, 69, 0, 0.6);
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .timer-controls {
+      display: flex; gap: 1.5rem; width: 100%; margin-top: auto; margin-bottom: 1.5rem;
+    }
+    .timer-controls button { margin-top: 0; }
+
+    /* Final Screen */
+    .result-block {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .result-block h3 { margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--neon-pink); }
+    .result-block p { color: var(--ink); margin-bottom: 0.25rem; font-size: 1.2rem; }
+    
+    .stack-data {
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 1.5rem;
+    }
+    
+    .stack-data p {
+      font-weight: 800;
+      font-size: 1.4rem;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- Animated background container globally -->
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="app-container">
+
+  <!-- Setup Screen -->
+  <div id="setup-screen" class="screen active">
+    <h1>IMPOSTER</h1>
+    
+    <div class="label">Number of Players (3-20)</div>
+    <input type="number" id="player-count" min="3" max="20" value="4">
+
+    <div class="label">Game Mode</div>
+    <div class="mode-group" id="mode-selector">
+      <div class="mode-card selected" data-mode="0">
+        <div class="radio-dot"></div>
+        <div class="mode-info">
+          <h3>Blind Imposter</h3>
+          <p>Imposter is told they are the imposter, no word given.</p>
+        </div>
+      </div>
+      <div class="mode-card" data-mode="1">
+        <div class="radio-dot"></div>
+        <div class="mode-info">
+          <h3>Theme Imposter</h3>
+          <p>Imposter gets the category/theme, told they are imposter.</p>
+        </div>
+      </div>
+      <div class="mode-card" data-mode="2">
+        <div class="radio-dot"></div>
+        <div class="mode-info">
+          <h3>Decoy Imposter</h3>
+          <p>Imposter gets a similar decoy word, NOT told.</p>
+        </div>
+      </div>
+      <div class="mode-card" data-mode="3">
+        <div class="radio-dot"></div>
+        <div class="mode-info">
+          <h3>Question Mode</h3>
+          <p>Imposter gets a slightly different question.</p>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+
+  <!-- Cover Screen -->
+  <div id="cover-screen" class="screen">
+    <h2 id="pass-to-player">Pass to Player 1</h2>
+    <button onclick="showReveal()">Ready — Reveal</button>
+  </div>
+
+
+  <!-- Reveal Screen -->
+  <div id="reveal-screen" class="screen">
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progress-indicator"></div>
+    </div>
+    
+    <div class="reveal-content" id="reveal-content-box">
+      <div class="label" id="reveal-label">Category / Role</div>
+      <div id="reveal-text">Word or Question</div>
+    </div>
+
+    <button onclick="nextPlayer()">Done — Hide & Pass</button>
+  </div>
+
+
+  <!-- Discussion Screen -->
+  <div id="discussion-screen" class="screen">
+    <h1>Find the Imposter.</h1>
+    <p>Interrogate everyone. Discuss and vote on who you think the imposter is before time runs out.</p>
+
+    <div class="timer-container">
+      <div class="timer mono" id="timer-display">3:00</div>
+    </div>
+
+    <div class="timer-controls">
+      <button class="secondary" onclick="toggleTimer()" id="timer-toggle-btn">Pause</button>
+      <button class="secondary" onclick="resetTimer()">Reset</button>
+    </div>
+    <button onclick="showResults()">Reveal Results</button>
+  </div>
+
+
+  <!-- Final Screen -->
+  <div id="final-screen" class="screen">
+    <h1>Game Over</h1>
+
+    <div class="result-block">
+      <div class="label">The Imposter Was</div>
+      <h3 id="result-imposter">Player X</h3>
+    </div>
+
+    <div class="result-block" id="result-details">
+      <!-- Injected via JS -->
+    </div>
+
+    <button onclick="playAgain()">Play Again</button>
+    <button class="secondary" onclick="newGame()">Change Settings</button>
+  </div>
+
+</div>
+
+<!-- DATA IMPORT -->
+<script src="data.js"></script>
+
+<script>
+  // --- STATE ---
+  const state = {
+    players: 4,
+    mode: 0,
+    imposterIndex: 0,
+    currentPlayer: 1,
+    wordEntry: null,
+    questionEntry: null,
+    timerSeconds: 180,
+    timerRunning: false,
+    timerInterval: null,
+    usedWords: [],
+    usedQuestions: [],
+    lastCategory: null
+  };
+
+  // --- UI BINDINGS ---
+  const modeCards = document.querySelectorAll('.mode-card');
+  modeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      modeCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.mode = parseInt(card.dataset.mode, 10);
+    });
+  });
+
+  function switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+  }
+
+  // --- GAMEPLAY FUNCTIONS ---
+  function startGame() {
+    const pCount = parseInt(document.getElementById('player-count').value, 10);
+    if (isNaN(pCount) || pCount < 3 || pCount > 20) {
+      alert("Please enter a valid number of players (3-20).");
+      return;
+    }
+    state.players = pCount;
+    
+    setupRound();
+    state.currentPlayer = 1;
+    showCover();
+  }
+
+  function setupRound() {
+    state.imposterIndex = Math.floor(Math.random() * state.players) + 1; // 1-indexed
+
+    if (state.mode === 3) {
+      let availableQs = QUESTIONS.filter(q => !state.usedQuestions.includes(q.question));
+      if (availableQs.length === 0) {
+        state.usedQuestions = [];
+        availableQs = QUESTIONS;
+      }
+      const selected = availableQs[Math.floor(Math.random() * availableQs.length)];
+      state.usedQuestions.push(selected.question);
+      state.questionEntry = selected;
+    } else {
+      let availableWords = WORDS.filter(w => !state.usedWords.includes(w.word) && w.category !== state.lastCategory);
+      if (availableWords.length === 0) {
+        availableWords = WORDS.filter(w => !state.usedWords.includes(w.word));
+        if (availableWords.length === 0) {
+          state.usedWords = [];
+          availableWords = WORDS.filter(w => w.category !== state.lastCategory);
+          if (availableWords.length === 0) availableWords = WORDS;
+        }
+      }
+      const selected = availableWords[Math.floor(Math.random() * availableWords.length)];
+      state.usedWords.push(selected.word);
+      state.lastCategory = selected.category;
+      state.wordEntry = selected;
+    }
+  }
+
+  function showCover() {
+    document.getElementById('pass-to-player').textContent = `Pass to Player ${state.currentPlayer}`;
+    switchScreen('cover-screen');
+  }
+
+  function showReveal() {
+    const isImposter = (state.currentPlayer === state.imposterIndex);
+    
+    const labelEl = document.getElementById('reveal-label');
+    const textEl = document.getElementById('reveal-text');
+    const contentBox = document.getElementById('reveal-content-box');
+    
+    // Reset formatting
+    contentBox.className = 'reveal-content';
+    textEl.className = 'reveal-word';
+    
+    if (state.mode === 3) {
+      // Question Mode
+      contentBox.className = 'reveal-content left-align';
+      textEl.className = 'reveal-question';
+      labelEl.textContent = "Question";
+      textEl.textContent = isImposter ? state.questionEntry.imposterQuestion : state.questionEntry.question;
+    } else {
+      // Word Modes (0, 1, 2)
+      if (isImposter) {
+        if (state.mode === 0) {
+          labelEl.textContent = "Your Secret Role";
+          textEl.textContent = "You are the Imposter.";
+        } else if (state.mode === 1) {
+          labelEl.textContent = `Category: ${state.wordEntry.category}`;
+          textEl.textContent = "You are the Imposter.";
+        } else if (state.mode === 2) {
+          labelEl.textContent = `Category: ${state.wordEntry.category}`;
+          textEl.textContent = state.wordEntry.decoy;
+        }
+      } else {
+        labelEl.textContent = `Category: ${state.wordEntry.category}`;
+        textEl.textContent = state.wordEntry.word;
+      }
+    }
+
+    // Update progress bar
+    const progressPct = ((state.currentPlayer - 1) / state.players) * 100;
+    document.getElementById('progress-indicator').style.width = `${progressPct}%`;
+    
+    switchScreen('reveal-screen');
+    
+    // Fill the bar fully if this is the last player just for visuals during their reveal
+    setTimeout(() => {
+        const finalPct = (state.currentPlayer / state.players) * 100;
+        document.getElementById('progress-indicator').style.width = `${finalPct}%`;
+    }, 50);
+  }
+
+  function nextPlayer() {
+    state.currentPlayer++;
+    if (state.currentPlayer > state.players) {
+      startDiscussion();
+    } else {
+      showCover();
+    }
+  }
+
+  // --- TIMER & DISCUSSION ---
+  function startDiscussion() {
+    resetTimer();
+    toggleTimer(); // Start timer automatically
+    switchScreen('discussion-screen');
+  }
+
+  function updateTimerUI() {
+    const display = document.getElementById('timer-display');
+    const mins = Math.floor(state.timerSeconds / 60);
+    const secs = state.timerSeconds % 60;
+    display.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    
+    if (state.timerSeconds <= 30 && state.timerSeconds > 0) {
+      display.classList.add('urgent');
+    } else {
+      display.classList.remove('urgent');
+    }
+  }
+
+  function _tickTimer() {
+    if (state.timerSeconds > 0) {
+      state.timerSeconds--;
+      updateTimerUI();
+    } else {
+      toggleTimer(); // Stop at 0
+    }
+  }
+
+  function toggleTimer() {
+    const btn = document.getElementById('timer-toggle-btn');
+    if (state.timerRunning) {
+      clearInterval(state.timerInterval);
+      state.timerRunning = false;
+      btn.textContent = "Resume";
+    } else {
+      if (state.timerSeconds === 0) return; // don't resume from 0
+      state.timerInterval = setInterval(_tickTimer, 1000);
+      state.timerRunning = true;
+      btn.textContent = "Pause";
+    }
+  }
+
+  function resetTimer() {
+    clearInterval(state.timerInterval);
+    state.timerRunning = false;
+    state.timerSeconds = 180;
+    document.getElementById('timer-toggle-btn').textContent = "Start";
+    updateTimerUI();
+  }
+
+  // --- RESULTS ---
+  function showResults() {
+    clearInterval(state.timerInterval);
+    state.timerRunning = false;
+    
+    document.getElementById('result-imposter').textContent = `Player ${state.imposterIndex}`;
+    
+    const detailsEl = document.getElementById('result-details');
+    detailsEl.innerHTML = ''; // clear previous
+    
+    const modeNames = ["Blind", "Theme", "Decoy", "Question"];
+    
+    if (state.mode === 3) {
+      detailsEl.innerHTML += `
+        <div class="label">Mode Built-In</div>
+        <p>Question Mode</p>
+        
+        <div class="stack-data">
+          <div class="label">Crewmate Question</div>
+          <p>${state.questionEntry.question}</p>
+        </div>
+        
+        <div class="stack-data">
+          <div class="label">Imposter Question</div>
+          <p>${state.questionEntry.imposterQuestion}</p>
+        </div>
+      `;
+    } else {
+      let extraHtml = '';
+      if (state.mode === 2) {
+        extraHtml = `
+        <div class="stack-data">
+          <div class="label">Imposter Decoy Word</div>
+          <p>${state.wordEntry.decoy}</p>
+        </div>`;
+      }
+
+      detailsEl.innerHTML += `
+        <div class="label">Game Mode</div>
+        <p>${modeNames[state.mode]}</p>
+        
+        <div class="stack-data">
+          <div class="label">True Category / Word</div>
+          <p>${state.wordEntry.category} &rsaquo; <strong>${state.wordEntry.word}</strong></p>
+        </div>
+        
+        ${extraHtml}
+      `;
+    }
+
+    switchScreen('final-screen');
+  }
+
+  function playAgain() {
+    setupRound();
+    state.currentPlayer = 1;
+    showCover();
+  }
+
+  function newGame() {
+    switchScreen('setup-screen');
+  }
+
+</script>
+</body>
+</html>
