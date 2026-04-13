@@ -46,7 +46,7 @@
       display: flex;
       justify-content: center;
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     /* Animated Background */
@@ -78,7 +78,7 @@
     /* Container Glassmorphism */
     .app-container {
       width: 100%;
-      max-width: 480px;
+      max-width: 440px;
       min-height: 100vh;
       position: relative;
       background: rgba(10, 10, 12, 0.6);
@@ -94,7 +94,7 @@
       flex-direction: column;
       min-height: 100vh;
       width: 100%;
-      padding: 3rem 2rem;
+      padding: 2rem 1.5rem;
       opacity: 0;
       transform: scale(0.95) translateY(20px);
       transition: opacity 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
@@ -133,7 +133,7 @@
     /* Forms */
     input[type="number"] {
       width: 100%;
-      height: 64px;
+      height: 56px;
       background: var(--glass-bg);
       border: 2px solid var(--glass-border);
       border-radius: 16px;
@@ -141,7 +141,7 @@
       font-family: 'Syne Mono', monospace;
       font-size: 1.5rem;
       color: var(--ink);
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
       box-shadow: inset 0 4px 20px rgba(0,0,0,0.5);
       transition: all 0.3s ease;
     }
@@ -155,7 +155,7 @@
     /* Buttons */
     button {
       width: 100%;
-      min-height: 68px;
+      min-height: 60px;
       background: linear-gradient(45deg, var(--neon-purple), var(--neon-pink));
       color: #FFFFFF;
       border: none;
@@ -367,6 +367,25 @@
       font-size: 1.4rem;
     }
 
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--glass-border);
+    }
+    .footer p { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--ink2); }
+    .footer a { 
+      color: var(--neon-cyan); 
+      text-decoration: none; 
+      font-size: 0.85rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em; 
+      font-family: 'Syne Mono', monospace; 
+      transition: all 0.2s; 
+    }
+    .footer a:hover { text-shadow: 0 0 10px rgba(0, 255, 255, 0.5); }
+
   </style>
 </head>
 <body>
@@ -420,6 +439,11 @@
     </div>
 
     <button onclick="startGame()">Start Game</button>
+
+    <div class="footer">
+      <p>Made with love by Dhruva</p>
+      <a href="https://github.com/DhruvaMyakeri/FriendSlopOfflineGame-Website" target="_blank">Contribute on GitHub</a>
+    </div>
   </div>
 
 
